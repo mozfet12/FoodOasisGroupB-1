@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">FoodOasis</string>
+    <string name="app_name">Food Oasis</string>
+    <string name="google_map_key">AIzaSyAEjrtmyNsg7Y5KLtmYV_FDGqZLi0Qw-Pk</string>
 </resources>
