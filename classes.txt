@@ -1,1 +1,9 @@
+PlaceTask: It is used to get the nearby location for the user
 
+ParserTask: It is used to store the data retrieved from google map
+
+NearLocationDetails: For the details of nearer location
+
+Login: For allowing users to log in to the application
+
+VerifyWithUSDA: To verify the places with the USDA database
