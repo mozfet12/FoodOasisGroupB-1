@@ -30,6 +30,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
 import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     EditText et_addr_or_pincode, et_radius;
     Button btn_curr_location, btn_search;
     boolean validation_successful = false;
+    TextInputLayout til_addr_zipcode_err, til_radius_err;
+    TextInputEditText tiet_addr_zipcode, tiet_radius;
 
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =
@@ -96,10 +100,14 @@ public class MainActivity extends AppCompatActivity {
         btn_curr_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                til_addr_zipcode_err.setError(null);
+                til_radius_err.setError(null);
                 getEditTextData();
-                hideSoftKeyboard(MainActivity.this);
-                if (nearByRadius.length() != 0) {
-                    getLiveLocation();
+                if (validateDetailsFromUser()) {
+                    hideSoftKeyboard(MainActivity.this);
+                    if (nearByRadius.length() != 0) {
+                        getLiveLocation();
+                    }
                 }
             }
         });
@@ -108,24 +116,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getEditTextData();
-                getLocationFromAddress(addr_pincode);
-                hideSoftKeyboard(MainActivity.this);
+                til_addr_zipcode_err.setError(null);
+                til_radius_err.setError(null);
+                if (validateDetailsFromUser()) {
+                    getLocationFromAddress(addr_pincode);
+                    hideSoftKeyboard(MainActivity.this);
+                }
+
 
             }
         });
     }
 
     private boolean validateDetailsFromUser() {
-        if (!(addr_pincode.length() == 0 || nearByRadius.length() == 0)) {
-            nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
-                    currentLatitude + "," + currentLongitude +
-                    "&radius=" + nearByRadius +
-                    "&type=" + placeType +
-                    "&key=" + getResources().getString(R.string.google_map_key);
-
-            return true;
+        if (addr_pincode.length() == 0) {
+            til_addr_zipcode_err.setError("Please enter the proper address");
+            return false;
         }
-        return false;
+        if (nearByRadius.length() == 0) {
+            til_radius_err.setError("Please enter the valid radius");
+            return false;
+        }
+        til_addr_zipcode_err.setError(null);
+        til_radius_err.setError(null);
+        return true;
     }
 
     public void getLocationFromAddress(String strAddress) {
@@ -175,8 +189,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getEditTextData() {
-        addr_pincode = et_addr_or_pincode.getText().toString().trim();
-        nearByRadius = et_radius.getText().toString().trim();
+        addr_pincode = tiet_addr_zipcode.getText().toString().trim();
+        int radius = Integer.parseInt(tiet_radius.getText().toString().trim());
+        radius *= 1609;
+        nearByRadius = radius + "";
     }
 
     private void initializeVariables() {
@@ -184,8 +200,12 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
         rv_near_places_list = (RecyclerView) findViewById(R.id.rv_near_places_list);
         nearLocationDetailsModelClassArrayList = new ArrayList<NearLocationDetailsModelClass>();
-        et_addr_or_pincode = findViewById(R.id.et_addr_or_pincode);
-        et_radius = findViewById(R.id.et_radius);
+//        et_addr_or_pincode = findViewById(R.id.et_addr_or_pincode);
+//        et_radius = findViewById(R.id.et_radius);
+        til_addr_zipcode_err = findViewById(R.id.til_addr_zipcode_err);
+        til_radius_err = findViewById(R.id.til_radius_err);
+        tiet_addr_zipcode = findViewById(R.id.tiet_addr_zipcode);
+        tiet_radius = findViewById(R.id.tiet_radius);
         btn_curr_location = findViewById(R.id.btn_curr_location);
         btn_search = findViewById(R.id.btn_search);
         nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
