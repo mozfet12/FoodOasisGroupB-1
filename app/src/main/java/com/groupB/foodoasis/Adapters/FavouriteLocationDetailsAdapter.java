@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,12 +15,12 @@ import com.groupB.foodoasis.R;
 
 import java.util.ArrayList;
 
-public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocationDetailsAdapter.Holder> {
+public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<FavouriteLocationDetailsAdapter.Holder> {
 
     Context context;
     ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList;
 
-    public NearLocationDetailsAdapter(Context context, ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList) {
+    public FavouriteLocationDetailsAdapter(Context context, ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList) {
         this.context = context;
         this.nearLocationDetailsModelClassArrayList = nearLocationDetailsModelClassArrayList;
     }
@@ -30,9 +29,9 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.nearlocationdetailsmodelview, parent, false);
+        View view = layoutInflater.inflate(R.layout.favouritemodelview, parent, false);
 
-        return new NearLocationDetailsAdapter.Holder(view);
+        return new FavouriteLocationDetailsAdapter.Holder(view);
     }
 
     @Override
@@ -61,13 +60,14 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
 //        holder.mv_tv_latitude.setText(lat);
 //        holder.mv_tv_longitude.setText(lng);
 
-        holder.mv_btn_add_fav.setOnClickListener(new View.OnClickListener() {
+        holder.mv_btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StoreListingDBAdapter db = new StoreListingDBAdapter(context);
-                nearLocationDetailsModelClass.setIs_favourite(1);
-                db.insertFavouriteInTable(nearLocationDetailsModelClass);
-                Toast.makeText(context, "Added to favourite.", Toast.LENGTH_SHORT);
+                nearLocationDetailsModelClass.setIs_favourite(0);
+                nearLocationDetailsModelClassArrayList.remove(holder.getAdapterPosition());
+                db.deleteFavouriteListing(place_id);
+                notifyDataSetChanged();
             }
         });
     }
@@ -81,7 +81,7 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
 
         //        TextView mv_tv_icon, mv_tv_name, mv_tv_place_id, mv_tv_latitude, mv_tv_longitude;
         TextView mv_tv_name, mv_dst, mv_website;
-        Button mv_btn_add_fav, mv_btn_get_direction, mv_btn_call;
+        Button mv_btn_delete, mv_btn_get_direction, mv_btn_call;
 
         public Holder(@NonNull View itemView) {
             super(itemView);
@@ -92,7 +92,7 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
 //            mv_tv_place_id = (TextView) itemView.findViewById(R.id.mv_tv_place_id);
 //            mv_tv_latitude = (TextView) itemView.findViewById(R.id.mv_tv_latitude);
 //            mv_tv_longitude = (TextView) itemView.findViewById(R.id.mv_tv_longitude);
-            mv_btn_add_fav = (Button) itemView.findViewById(R.id.mv_btn_add_fav);
+            mv_btn_delete = (Button) itemView.findViewById(R.id.mv_btn_delete);
             mv_btn_get_direction = (Button) itemView.findViewById(R.id.mv_btn_get_direction);
             mv_btn_call = (Button) itemView.findViewById(R.id.mv_btn_call);
         }

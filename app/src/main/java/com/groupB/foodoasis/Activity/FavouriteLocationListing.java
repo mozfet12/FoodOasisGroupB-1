@@ -1,12 +1,12 @@
 package com.groupB.foodoasis.Activity;
 
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-
-import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
+import com.groupB.foodoasis.Adapters.FavouriteLocationDetailsAdapter;
 import com.groupB.foodoasis.Adapters.StoreListingDBAdapter;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
 import com.groupB.foodoasis.R;
@@ -28,13 +28,11 @@ public class FavouriteLocationListing extends AppCompatActivity {
         initializeVariables();
 
         StoreListingDBAdapter db = new StoreListingDBAdapter(FavouriteLocationListing.this);
-        ArrayList<NearLocationDetailsModelClass> list = db.selectStoreFromTable();
+        ArrayList<NearLocationDetailsModelClass> list = db.selectFavouriteFromTable();
 //        Log.e("data from DB ", list.toString());
 
         for (int i = 0; i < list.size(); i++) {
             NearLocationDetailsModelClass nearLocationDetailsModelClass = new NearLocationDetailsModelClass();
-
-            if(list.get(i).getIs_favourite() == 1) {
 
             nearLocationDetailsModelClass.setName(list.get(i).getName());
             nearLocationDetailsModelClass.setIcon(list.get(i).getIcon());
@@ -44,16 +42,15 @@ public class FavouriteLocationListing extends AppCompatActivity {
             nearLocationDetailsModelClass.setIs_favourite(list.get(i).getIs_favourite());
 
             nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
-            }
         }
 
-        setNearLocationDeatilsAdapter();
+        setFavouriteLocationDeatilsAdapter();
     }
 
-    private void setNearLocationDeatilsAdapter() {
+    private void setFavouriteLocationDeatilsAdapter() {
         rv_fav_store_listing.setLayoutManager(new LinearLayoutManager(FavouriteLocationListing.this));
-        NearLocationDetailsAdapter nearLocationDetailsAdapter = new NearLocationDetailsAdapter(FavouriteLocationListing.this, nearLocationDetailsModelClassArrayList);
-        rv_fav_store_listing.setAdapter(nearLocationDetailsAdapter);
+        FavouriteLocationDetailsAdapter favouriteLocationDetailsAdapter = new FavouriteLocationDetailsAdapter(FavouriteLocationListing.this, nearLocationDetailsModelClassArrayList);
+        rv_fav_store_listing.setAdapter(favouriteLocationDetailsAdapter);
     }
 
     private void initializeVariables() {
