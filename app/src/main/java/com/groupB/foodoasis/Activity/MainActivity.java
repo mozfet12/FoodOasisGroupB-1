@@ -10,7 +10,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -71,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     boolean validation_successful = false;
     TextInputLayout til_addr_zipcode_err, til_radius_err;
     TextInputEditText tiet_addr_zipcode, tiet_radius;
+    StoreListingDBAdapter db;
 
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =
@@ -107,25 +107,22 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 til_addr_zipcode_err.setError(null);
                 til_radius_err.setError(null);
+                db = new StoreListingDBAdapter(MainActivity.this);
+                db.deleteStoreListing();
+                fab_next.setVisibility(View.VISIBLE);
                 getEditTextData();
-                if (validateDetailsFromUser()) {
-                    hideSoftKeyboard(MainActivity.this);
-                    if (nearByRadius.length() != 0) {
-                        getLiveLocation();
-                    }
-                }
+                hideSoftKeyboard(MainActivity.this);
+                getLiveLocation();
             }
         });
 
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StoreListingDBAdapter db = new StoreListingDBAdapter(MainActivity.this);
-                db.deleteNonFavStoreListing(0);
-
+                db = new StoreListingDBAdapter(MainActivity.this);
+                db.deleteStoreListing();
                 getEditTextData();
                 fab_next.setVisibility(View.VISIBLE);
-                fab_favourite.setVisibility(View.VISIBLE);
                 til_addr_zipcode_err.setError(null);
                 til_radius_err.setError(null);
                 if (validateDetailsFromUser()) {
@@ -141,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
         fab_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,StoreListing.class);
-                intent.putExtra("name","Store List");
+                Intent intent = new Intent(MainActivity.this, StoreListing.class);
+                intent.putExtra("name", "Store List");
                 startActivity(intent);
             }
         });
@@ -150,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
         fab_favourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,FavouriteLocationListing.class);
-                intent.putExtra("name","Favourite Store List");
+                Intent intent = new Intent(MainActivity.this, FavouriteLocationListing.class);
+                intent.putExtra("name", "Favourite Store List");
                 startActivity(intent);
             }
         });
@@ -162,12 +159,12 @@ public class MainActivity extends AppCompatActivity {
             til_addr_zipcode_err.setError("Please enter the proper address");
             return false;
         }
-        if (nearByRadius.length() == 0) {
-            til_radius_err.setError("Please enter the valid radius");
-            return false;
-        }
+//        if (nearByRadius.length() == 0) {
+//            til_radius_err.setError("Please enter the valid radius");
+//            return false;
+//        }
         til_addr_zipcode_err.setError(null);
-        til_radius_err.setError(null);
+//        til_radius_err.setError(null);
         return true;
     }
 
@@ -219,7 +216,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void getEditTextData() {
         addr_pincode = tiet_addr_zipcode.getText().toString().trim();
-        int radius = Integer.parseInt(tiet_radius.getText().toString().trim());
+        String r = tiet_radius.getText().toString().trim();
+        int radius;
+        if (r.length() == 0) {
+            r = "5";
+            radius = Integer.parseInt(r);
+        } else {
+            radius = Integer.parseInt(r);
+        }
         radius *= 1609;
         nearByRadius = radius + "";
     }
@@ -240,10 +244,11 @@ public class MainActivity extends AppCompatActivity {
         fab_next = findViewById(R.id.fab_next);
         fab_next.setVisibility(View.GONE);
         fab_favourite = findViewById(R.id.fab_favourite);
-        fab_favourite.setVisibility(View.GONE);
         nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
                 currentLatitude + "," + currentLongitude +
                 "&key=" + getResources().getString(R.string.google_map_key);
+        db = new StoreListingDBAdapter(MainActivity.this);
+
     }
 
     private void getLiveLocation() {
@@ -406,7 +411,6 @@ public class MainActivity extends AppCompatActivity {
 //                nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
 
                 //add data into the SQLite db
-                StoreListingDBAdapter db =  new StoreListingDBAdapter(MainActivity.this);
                 db.insertStoreInTable(nearLocationDetailsModelClass);
 
             }

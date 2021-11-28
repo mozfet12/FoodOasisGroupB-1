@@ -146,12 +146,12 @@
             android:background="@drawable/ic_call"></Button>
 
         <Button
-            android:id="@+id/mv_btn_add_fav"
+            android:id="@+id/mv_btn_delete"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_gravity="right"
             android:layout_margin="5dp"
-            android:background="@drawable/ic_fab_favourite"></Button>
+            android:background="@drawable/ic_delete"></Button>
     </LinearLayout>
 
 </LinearLayout>
