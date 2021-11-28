@@ -3,12 +3,14 @@ package com.groupB.foodoasis.Activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -30,9 +32,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
+import com.groupB.foodoasis.Adapters.StoreListingDBAdapter;
 import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
 import com.groupB.foodoasis.R;
@@ -59,10 +63,11 @@ public class MainActivity extends AppCompatActivity {
     double currentLatitude = 0, currentLongitude = 0;
     RecyclerView rv_near_places_list;
     String nearByStoreUrl, addr_pincode = "", nearByRadius = "";
-    String placeType = "grocery";
+    String placeType = "farmersmarkets";
     ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList;
     EditText et_addr_or_pincode, et_radius;
     Button btn_curr_location, btn_search;
+    FloatingActionButton fab_favourite, fab_next;
     boolean validation_successful = false;
     TextInputLayout til_addr_zipcode_err, til_radius_err;
     TextInputEditText tiet_addr_zipcode, tiet_radius;
@@ -115,15 +120,39 @@ public class MainActivity extends AppCompatActivity {
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                StoreListingDBAdapter db = new StoreListingDBAdapter(MainActivity.this);
+                db.deleteNonFavStoreListing(0);
+
                 getEditTextData();
+                fab_next.setVisibility(View.VISIBLE);
+                fab_favourite.setVisibility(View.VISIBLE);
                 til_addr_zipcode_err.setError(null);
                 til_radius_err.setError(null);
                 if (validateDetailsFromUser()) {
                     getLocationFromAddress(addr_pincode);
                     hideSoftKeyboard(MainActivity.this);
+//                    Log.e("lat-lng: ", currentLatitude + " : " + currentLongitude + "");
                 }
 
 
+            }
+        });
+
+        fab_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,StoreListing.class);
+                intent.putExtra("name","Store List");
+                startActivity(intent);
+            }
+        });
+
+        fab_favourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,FavouriteLocationListing.class);
+                intent.putExtra("name","Favourite Store List");
+                startActivity(intent);
             }
         });
     }
@@ -208,6 +237,10 @@ public class MainActivity extends AppCompatActivity {
         tiet_radius = findViewById(R.id.tiet_radius);
         btn_curr_location = findViewById(R.id.btn_curr_location);
         btn_search = findViewById(R.id.btn_search);
+        fab_next = findViewById(R.id.fab_next);
+        fab_next.setVisibility(View.GONE);
+        fab_favourite = findViewById(R.id.fab_favourite);
+        fab_favourite.setVisibility(View.GONE);
         nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
                 currentLatitude + "," + currentLongitude +
                 "&key=" + getResources().getString(R.string.google_map_key);
@@ -302,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
             String data = null;
             try {
                 data = downloadUrl(strings[0]);
+//                Log.e("data received: ", data);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -311,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             //executing parser task: to store data in hashmap format
+//            Log.e("string ",s);
             new ParserTask().execute(s);
         }
     }
@@ -368,7 +403,12 @@ public class MainActivity extends AppCompatActivity {
                 nearLocationDetailsModelClass.setLatitude(lat);
                 nearLocationDetailsModelClass.setLongitude(lng);
 
-                nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
+//                nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
+
+                //add data into the SQLite db
+                StoreListingDBAdapter db =  new StoreListingDBAdapter(MainActivity.this);
+                db.insertStoreInTable(nearLocationDetailsModelClass);
+
             }
 //            set the adapter
 //            setNearLocationDeatilsAdapter();

@@ -6,16 +6,18 @@ public class NearLocationDetailsModelClass {
     String place_id;
     double latitude;
     double longitude;
+    int is_favourite = 0;
 
     public NearLocationDetailsModelClass() {
     }
 
-    public NearLocationDetailsModelClass(String name, String icon, String place_id, double latitude, double longitude) {
+    public NearLocationDetailsModelClass(String name, String icon, String place_id, double latitude, double longitude, int is_favourite) {
         this.name = name;
         this.icon = icon;
         this.place_id = place_id;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.is_favourite = is_favourite;
     }
 
     public String getName() {
@@ -56,5 +58,13 @@ public class NearLocationDetailsModelClass {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public int getIs_favourite() {
+        return is_favourite;
+    }
+
+    public void setIs_favourite(int is_favourite) {
+        this.is_favourite = is_favourite;
     }
 }
