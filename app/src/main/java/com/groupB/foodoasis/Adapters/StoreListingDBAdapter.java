@@ -181,6 +181,20 @@ public class StoreListingDBAdapter extends SQLiteOpenHelper {
         return arrayList;
     }
 
+    //SELECT query for the favourite list table for 1 record
+    public boolean selectRecordFavouriteFromTable(String place_id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String select_query_store_listing = "SELECT * FROM " + TBL_FAVOURITE_LIST + " WHERE " + COL_PLACE_ID + " = \"" + place_id + "\"";
+        Cursor cursor = db.rawQuery(select_query_store_listing, null);
+
+        //check if the data is available
+        if (cursor.moveToFirst()) {
+            //get all the data from the table
+            return true;
+        }
+        return false;
+    }
+
     //DELETE records from favourite list table
     public void deleteFavouriteListing(String place_id) {
         SQLiteDatabase db = this.getWritableDatabase();

@@ -65,9 +65,15 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
             @Override
             public void onClick(View v) {
                 StoreListingDBAdapter db = new StoreListingDBAdapter(context);
-                nearLocationDetailsModelClass.setIs_favourite(1);
-                db.insertFavouriteInTable(nearLocationDetailsModelClass);
-                Toast.makeText(context, "Added to favourite.", Toast.LENGTH_SHORT);
+                if (db.selectRecordFavouriteFromTable(place_id)) {
+                    Toast.makeText(context, "Already added to Favourite.", Toast.LENGTH_SHORT).show();
+//                    Log.e("Repeat ", "Already added.");
+                } else {
+                    nearLocationDetailsModelClass.setIs_favourite(1);
+                    db.insertFavouriteInTable(nearLocationDetailsModelClass);
+                    Toast.makeText(context, "Added to Favourite...", Toast.LENGTH_SHORT).show();
+//                    Log.e("First time ", "Added to Favourite.");
+                }
             }
         });
     }

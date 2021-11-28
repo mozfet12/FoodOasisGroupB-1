@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,6 +68,7 @@ public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<Favour
                 nearLocationDetailsModelClass.setIs_favourite(0);
                 nearLocationDetailsModelClassArrayList.remove(holder.getAdapterPosition());
                 db.deleteFavouriteListing(place_id);
+                Toast.makeText(context, "Removed from Favourite.", Toast.LENGTH_SHORT).show();
                 notifyDataSetChanged();
             }
         });
