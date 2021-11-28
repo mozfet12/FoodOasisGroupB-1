@@ -1,6 +1,12 @@
 package com.groupB.foodoasis.Adapters;
 
+import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +15,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
 import com.groupB.foodoasis.R;
 
@@ -20,6 +31,7 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
 
     Context context;
     ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList;
+    FusedLocationProviderClient fusedLocationProviderClient;
 
     public NearLocationDetailsAdapter(Context context, ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList) {
         this.context = context;
@@ -37,6 +49,8 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 
         String icon = nearLocationDetailsModelClassArrayList.get(position).getIcon();
         String place_name = nearLocationDetailsModelClassArrayList.get(position).getName();
@@ -76,6 +90,58 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
                 }
             }
         });
+
+        holder.mv_btn_get_direction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String[] latlng = getLiveLocation();
+                goToMap(latlng[0], latlng[1], lat, lng);
+            }
+        });
+    }
+
+    private String[] getLiveLocation() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return null;
+        }
+        String[] latlng = new String[2];
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    latlng[0] = location.getLatitude() + "";
+                    latlng[1] = location.getLongitude() + "";
+                }
+            }
+        });
+        return latlng;
+    }
+
+    private void goToMap(String source_lat, String source_lng, String dst_lat, String dst_lng) {
+
+
+        try {
+            //if the MAPS is installed
+            Uri uri = Uri.parse("https://www.google.com/maps/dir/" + source_lat + "," + source_lng + "/" + dst_lat + "," + dst_lng);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.google.android.apps.maps");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            //MAPS is not installed
+            Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
     }
 
     @Override
