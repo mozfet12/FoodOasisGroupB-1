@@ -31,6 +31,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -38,7 +40,6 @@ import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
 import com.groupB.foodoasis.Adapters.StoreListingDBAdapter;
 import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
-import com.groupB.foodoasis.Classes.USDADatabase;
 import com.groupB.foodoasis.R;
 
 import org.json.JSONException;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     // create variables
     SupportMapFragment supportMapFragment;
     GoogleMap gMap;
+    PlacesClient placesClient;
     FusedLocationProviderClient fusedLocationProviderClient;
     double currentLatitude = 0, currentLongitude = 0;
     RecyclerView rv_near_places_list;
@@ -123,10 +125,10 @@ public class MainActivity extends AppCompatActivity {
                 db = new StoreListingDBAdapter(MainActivity.this);
                 db.deleteStoreListing();
                 getEditTextData();
-                fab_next.setVisibility(View.VISIBLE);
                 til_addr_zipcode_err.setError(null);
                 til_radius_err.setError(null);
                 if (validateDetailsFromUser()) {
+                    fab_next.setVisibility(View.VISIBLE);
                     getLocationFromAddress(addr_pincode);
                     hideSoftKeyboard(MainActivity.this);
 //                    Log.e("lat-lng: ", currentLatitude + " : " + currentLongitude + "");
@@ -157,15 +159,10 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean validateDetailsFromUser() {
         if (addr_pincode.length() == 0) {
-            til_addr_zipcode_err.setError("Please enter the proper address");
+            til_addr_zipcode_err.setError("Please enter the valid address");
             return false;
         }
-//        if (nearByRadius.length() == 0) {
-//            til_radius_err.setError("Please enter the valid radius");
-//            return false;
-//        }
         til_addr_zipcode_err.setError(null);
-//        til_radius_err.setError(null);
         return true;
     }
 
@@ -176,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             address = coder.getFromLocationName(strAddress, 5);
-            if (address == null) {
+            if (address == null || address.size() == 0) {
+                til_addr_zipcode_err.setError("Please enter the valid address");
                 return;
             }
             Address location = address.get(0);
@@ -213,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
 //            new USDADatabase().execute(currentLatitude+"",currentLongitude+"");
 
         } catch (IOException e) {
+            validateDetailsFromUser();
             e.printStackTrace();
         }
     }
@@ -235,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.google_map);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
         rv_near_places_list = (RecyclerView) findViewById(R.id.rv_near_places_list);
+        Places.initialize(MainActivity.this, String.valueOf(R.string.google_map_key));
+        placesClient = Places.createClient(MainActivity.this);
         nearLocationDetailsModelClassArrayList = new ArrayList<NearLocationDetailsModelClass>();
 //        et_addr_or_pincode = findViewById(R.id.et_addr_or_pincode);
 //        et_radius = findViewById(R.id.et_radius);
@@ -379,7 +380,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
-            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
             gMap.clear();
 
             //after getting nearer stores show them on google map
@@ -405,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
 //                Log.e("latitude: ", lat + "");
 //                Log.e("longitude: ", lng + "");
 
+
                 //add details in model class
                 NearLocationDetailsModelClass nearLocationDetailsModelClass = new NearLocationDetailsModelClass();
                 nearLocationDetailsModelClass.setName(name);
@@ -413,12 +414,24 @@ public class MainActivity extends AppCompatActivity {
                 nearLocationDetailsModelClass.setLatitude(lat);
                 nearLocationDetailsModelClass.setLongitude(lng);
 
+
+//                List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.PRICE_LEVEL);
+//                FetchPlaceRequest request = FetchPlaceRequest.newInstance(place_id, placeFields);
+//                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+//                    Log.e("status","worked till now");
+//                    Place place = response.getPlace();
+//                    nearLocationDetailsModelClass.setIcon(place.getWebsiteUri().toString());
+//                    nearLocationDetailsModelClass.setName(place.getPhoneNumber());
+//                    Log.e("phone number ",place.getPhoneNumber());
+//                });
+
 //                nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
 
                 //add data into the SQLite db
                 db.insertStoreInTable(nearLocationDetailsModelClass);
 
             }
+//            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
 //            set the adapter
 //            setNearLocationDeatilsAdapter();
         }
