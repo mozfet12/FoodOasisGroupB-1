@@ -9,13 +9,17 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,8 +38,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.GeocodingResult;
 import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
 import com.groupB.foodoasis.Adapters.StoreListingDBAdapter;
 import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
@@ -43,6 +53,7 @@ import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
 import com.groupB.foodoasis.Classes.USDADatabase;
 import com.groupB.foodoasis.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,8 +61,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,13 +78,13 @@ public class MainActivity extends AppCompatActivity {
     FusedLocationProviderClient fusedLocationProviderClient;
     double currentLatitude = 0, currentLongitude = 0;
     RecyclerView rv_near_places_list;
-    String nearByStoreUrl, addr_pincode = "", nearByRadius = "";
+    String nearByStoreUrl, addr_pincode = "", nearByRadius = "15";
     String placeType = "grocery_store";
     ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList;
     EditText et_addr_or_pincode, et_radius;
     Button btn_curr_location, btn_search;
     FloatingActionButton fab_favourite, fab_next;
-    boolean validation_successful = false;
+    boolean validation_successful = false, btn_press = false;
     TextInputLayout til_addr_zipcode_err, til_radius_err;
     TextInputEditText tiet_addr_zipcode, tiet_radius;
     StoreListingDBAdapter db;
@@ -107,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onClickEventsOfButtons() {
         btn_curr_location.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
                 til_addr_zipcode_err.setError(null);
@@ -116,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 fab_next.setVisibility(View.VISIBLE);
                 getEditTextData();
                 hideSoftKeyboard(MainActivity.this);
+                btn_press = true;
                 getLiveLocation();
             }
         });
@@ -202,12 +217,12 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-            nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
-                    currentLatitude + "," + currentLongitude +
-                    "&radius=" + nearByRadius +
-                    "&keyword=" + placeType +
-                    "maxprice=3" +
-                    "&key=" + getResources().getString(R.string.google_map_key);
+//            nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
+//                    currentLatitude + "," + currentLongitude +
+//                    "&radius=" + nearByRadius +
+//                    "&keyword=" + placeType +
+//                    "maxprice=3" +
+//                    "&key=" + getResources().getString(R.string.google_map_key);
 
             new PlaceTask().execute(nearByStoreUrl);
 //            new USDADatabase().execute(currentLatitude+"",currentLongitude+"");
@@ -223,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
         String r = tiet_radius.getText().toString().trim();
         int radius;
         if (r.length() == 0) {
-            r = "5";
+            r = "15";
             radius = Integer.parseInt(r);
         } else {
             radius = Integer.parseInt(r);
@@ -290,13 +305,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-                nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
-                        currentLatitude + "," + currentLongitude +
-                        "&radius=" + nearByRadius +
-                        "&type=" + placeType +
-                        "&key=" + getResources().getString(R.string.google_map_key);
+//                nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
+//                        currentLatitude + "," + currentLongitude +
+//                        "&radius=" + nearByRadius +
+//                        "&type=" + placeType +
+//                        "&key=" + getResources().getString(R.string.google_map_key);
 
-                new PlaceTask().execute(nearByStoreUrl);
+                if (btn_press)
+                    new PlaceTask().execute(nearByStoreUrl);
 
             }
         });
@@ -334,58 +350,217 @@ public class MainActivity extends AppCompatActivity {
         return data;
     }
 
-    private void setNearLocationDeatilsAdapter() {
-        rv_near_places_list.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        NearLocationDetailsAdapter nearLocationDetailsAdapter = new NearLocationDetailsAdapter(MainActivity.this, nearLocationDetailsModelClassArrayList);
-        rv_near_places_list.setAdapter(nearLocationDetailsAdapter);
-    }
-
     //perform task to get the data from API.
-    public class PlaceTask extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... strings) {
-            String data = null;
-            try {
-                data = downloadUrl(strings[0]);
-//                Log.e("data received: ", data);
-            } catch (IOException e) {
-                e.printStackTrace();
+    public class PlaceTask extends AsyncTask<String, Integer, JSONArray> {
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            String data = null;
+//            try {
+//                data = downloadUrl(strings[0]);
+////                Log.e("data received: ", data);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return data;
+//        }
+
+        private String readAll(Reader rd) throws IOException {
+            StringBuilder sb = new StringBuilder();
+            int cp;
+            while ((cp = rd.read()) != -1) {
+                sb.append((char) cp);
             }
-            return data;
+            return sb.toString();
+        }
+
+        public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+            InputStream is = new URL(url).openStream();
+            try {
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+                String jsonText = readAll(rd);
+
+                JSONObject json = new JSONObject(jsonText);
+                return json;
+            } finally {
+                is.close();
+            }
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected JSONArray doInBackground(String... strings) {
+
+            //System.out.println(json.get("results"));
+            //Miles that the User is willing to travel
+            double milesTraveled = Double.parseDouble(nearByRadius);
+            //Creates an API call to Google Geocoding
+            GeoApiContext context = new GeoApiContext.Builder()
+                    .apiKey("AIzaSyAgmp-JgcYmE73aC3Y2qZtpcIPYyFM-KkM")
+                    .build();
+
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+            //Saves myLat as the Latitude and myLong as the longitude
+            String myLat = currentLatitude + "";
+            String myLong = currentLongitude + "";
+
+//            String myLat = "29.6871385";
+//            String myLong = "-95.4447542";
+
+
+            //Create arraylists bc they're dynamic
+            ArrayList<String> strResult = new ArrayList<String>();
+            ArrayList<String> idResult = new ArrayList<String>();
+            ArrayList<String> distResult = new ArrayList<String>();
+            ArrayList<String> latResult = new ArrayList<String>();
+            ArrayList<String> lonResult = new ArrayList<String>();
+            try {
+                String link = "https://search.ams.usda.gov/farmersmarkets/v1/data.svc/locSearch?lat=" + myLat + "&lng=" + myLong;
+                URL url = new URL(link);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                int responseCode = conn.getResponseCode();
+
+                if (responseCode == 200) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+                    String output;
+                    String totalString = "";
+                    while ((output = br.readLine()) != null) {
+                        totalString += output;
+                    }
+                    //System.out.println(totalString);
+                    //Splits elements of JSONString and stores elements in jsonArray[]
+                    String jsonArray[] = totalString.split("\\{");
+
+                    //System.out.println(jsonArray[2]);
+
+                    int resultStr = 0;
+                    int idStr = 0;
+                    int resultStr2 = 0;
+                    String varStrResult = "";
+                    String varStrResult2 = "";
+                    String splitString = "";
+                    double dist = 0.0;
+                    for (int i = 2; i < jsonArray.length; i++) {
+                        resultStr = (jsonArray[i].indexOf("marketname")) + 1;
+                        idStr = (jsonArray[i].indexOf("id") - 1);
+                        resultStr2 = jsonArray[i].indexOf("}");
+                        varStrResult = jsonArray[i].substring(resultStr + 12, resultStr2 - 1);
+
+                        varStrResult2 = varStrResult.replaceAll("\\d", "");
+                        varStrResult2 = varStrResult2.replaceAll("\\.", "");
+
+                        splitString = varStrResult.replaceAll("[^\\d.]", "");
+                        dist = Double.parseDouble(splitString);
+
+                        if (dist <= milesTraveled) {
+                            idResult.add(jsonArray[i].substring(idStr + 6, idStr + 13));
+                            strResult.add(varStrResult2);
+                            distResult.add(splitString);
+
+                        }
+
+                    }
+
+                    String urlTobeSent;
+                    String jsonString = "";
+                    String address;
+                    int addrStr;
+                    int googStr;
+                    JSONArray obj = new JSONArray();
+                    for (int i = 0; i < idResult.size(); i++) {
+                        urlTobeSent = "https://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=" + idResult.get(i);
+                        JSONObject json = readJsonFromUrl(urlTobeSent);
+                        jsonString = json.toString();
+                        addrStr = jsonString.indexOf("Address");
+                        googStr = jsonString.indexOf("Schedule");
+                        address = (jsonString.substring(addrStr + 10, googStr - 3));
+                        //System.out.println(address);
+                        GeoApiContext context2 = new GeoApiContext.Builder()
+//                            .apiKey("AIzaSyAgmp-JgcYmE73aC3Y2qZtpcIPYyFM-KkM")
+                                .apiKey("AIzaSyAgmp-JgcYmE73aC3Y2qZtpcIPYyFM-KkM")
+                                .build();
+                        GeocodingResult[] results2 = GeocodingApi.geocode(context,
+                                address).await();
+                        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
+                        //System.out.println(gson.toJson(results[0].geometry.location.lat));
+                        myLat = gson.toJson(results2[0].geometry.location.lat);
+                        myLong = gson.toJson(results2[0].geometry.location.lng);
+
+                        latResult.add(myLat);
+                        lonResult.add(myLong);
+
+                        //Creates JSON Array
+                        try {
+                            JSONObject locData = new JSONObject();
+                            locData.put("number", String.valueOf(i));
+
+                            locData.put("name", strResult.get(i).trim());
+                            locData.put("lon", myLong);
+                            locData.put("lat", myLat);
+                            obj.put(locData);
+
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                    //Converts JSON to string and prints it
+//                System.out.println(obj.toString());
+//                Log.e("Data: ", obj.toString());
+                    return obj;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONArray s) {
             //executing parser task: to store data in hashmap format
 //            Log.e("string ",s);
             new ParserTask().execute(s);
         }
     }
 
-    public class ParserTask extends AsyncTask<String, Integer, List<HashMap<String, String>>> {
+    public class ParserTask extends AsyncTask<JSONArray, Integer, List<HashMap<String, String>>> {
+
+//        @Override
+//        protected List<HashMap<String, String>> doInBackground(String... strings) {
+//            NearLocatedPlacesFromGoogleMap nearLocatedPlacesFromGoogleMap = new NearLocatedPlacesFromGoogleMap();
+//            List<HashMap<String, String>> mapList = null;
+//            JSONObject jsonObject = null;
+//            try {
+//                jsonObject = new JSONObject(strings[0]);
+//                Log.e("worked",jsonObject.toString());
+//                Log.e("worked","till now");
+//
+//                mapList = nearLocatedPlacesFromGoogleMap.parseResult(jsonObject);
+//                Log.e("mapList of json parser:", mapList.toString());
+////                Log.e("json object: ", jsonObject.toString());
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            return mapList;
+//        }
 
         @Override
-        protected List<HashMap<String, String>> doInBackground(String... strings) {
+        protected List<HashMap<String, String>> doInBackground(JSONArray... jsonArrays) {
             NearLocatedPlacesFromGoogleMap nearLocatedPlacesFromGoogleMap = new NearLocatedPlacesFromGoogleMap();
             List<HashMap<String, String>> mapList = null;
-            JSONObject jsonObject = null;
-            try {
-                jsonObject = new JSONObject(strings[0]);
-                mapList = nearLocatedPlacesFromGoogleMap.parseResult(jsonObject);
-//                Log.e("mapList of json parser:", mapList.toString());
-//                Log.e("json object: ", jsonObject.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mapList = nearLocatedPlacesFromGoogleMap.parseJsonArray(jsonArrays[0]);
+//            Log.e("mapList of json parser:", mapList.toString());
             return mapList;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
-            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
+//            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
             gMap.clear();
 
-            //after getting nearer stores show them on google map
+//            after getting nearer stores show them on google map
             for (int i = 0; i < hashMaps.size(); i++) {
                 HashMap<String, String> hashMap = hashMaps.get(i);
 
@@ -418,25 +593,12 @@ public class MainActivity extends AppCompatActivity {
                 nearLocationDetailsModelClass.setLongitude(lng);
 
 
-//                List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.WEBSITE_URI, Place.Field.PHONE_NUMBER, Place.Field.PRICE_LEVEL);
-//                FetchPlaceRequest request = FetchPlaceRequest.newInstance(place_id, placeFields);
-//                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-//                    Log.e("status","worked till now");
-//                    Place place = response.getPlace();
-//                    nearLocationDetailsModelClass.setIcon(place.getWebsiteUri().toString());
-//                    nearLocationDetailsModelClass.setName(place.getPhoneNumber());
-//                    Log.e("phone number ",place.getPhoneNumber());
-//                });
-
 //                nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
 
                 //add data into the SQLite db
                 db.insertStoreInTable(nearLocationDetailsModelClass);
 
             }
-            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
-//            set the adapter
-//            setNearLocationDeatilsAdapter();
         }
     }
 }
