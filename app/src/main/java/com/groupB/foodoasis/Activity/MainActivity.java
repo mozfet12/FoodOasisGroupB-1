@@ -40,6 +40,7 @@ import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
 import com.groupB.foodoasis.Adapters.StoreListingDBAdapter;
 import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
+import com.groupB.foodoasis.Classes.USDADatabase;
 import com.groupB.foodoasis.R;
 
 import org.json.JSONException;
@@ -431,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
                 db.insertStoreInTable(nearLocationDetailsModelClass);
 
             }
-//            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
+            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
 //            set the adapter
 //            setNearLocationDeatilsAdapter();
         }
