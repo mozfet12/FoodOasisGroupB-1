@@ -38,6 +38,7 @@ import com.groupB.foodoasis.Adapters.NearLocationDetailsAdapter;
 import com.groupB.foodoasis.Adapters.StoreListingDBAdapter;
 import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
+import com.groupB.foodoasis.Classes.USDADatabase;
 import com.groupB.foodoasis.R;
 
 import org.json.JSONException;
@@ -201,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+
             nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
                     currentLatitude + "," + currentLongitude +
                     "&radius=" + nearByRadius +
@@ -208,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     "&key=" + getResources().getString(R.string.google_map_key);
 
             new PlaceTask().execute(nearByStoreUrl);
+//            new USDADatabase().execute(currentLatitude+"",currentLongitude+"");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -282,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+
 
                 nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
                         currentLatitude + "," + currentLongitude +
@@ -375,6 +379,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
+            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
             gMap.clear();
 
             //after getting nearer stores show them on google map
