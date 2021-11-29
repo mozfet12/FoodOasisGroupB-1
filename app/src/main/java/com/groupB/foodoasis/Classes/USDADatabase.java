@@ -2,6 +2,7 @@ package com.groupB.foodoasis.Classes;
 
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,6 +51,7 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
 
     @Override
     protected String doInBackground(String... strings) {
+
         //System.out.println(json.get("results"));
         //Miles that the User is willing to travel
         double milesTraveled = 20;
@@ -164,6 +166,7 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
                         JSONObject locData = new JSONObject();
                         locData.put("number", String.valueOf(i));
 
+                        locData.put("name", strResult.get(i).trim());
                         locData.put("lon", myLong);
                         locData.put("lat", myLat);
                         obj.put(locData);
@@ -175,6 +178,7 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
                 }
                 //Converts JSON to string and prints it
 //                System.out.println(obj.toString());
+                Log.e("Data: ", obj.toString());
 //                Log.e("Data: ", obj.toString());
                 return obj.toString();
             }

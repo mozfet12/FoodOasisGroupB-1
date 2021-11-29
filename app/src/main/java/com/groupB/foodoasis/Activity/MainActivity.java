@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     double currentLatitude = 0, currentLongitude = 0;
     RecyclerView rv_near_places_list;
     String nearByStoreUrl, addr_pincode = "", nearByRadius = "";
-    String placeType = "farmersmarkets";
+    String placeType = "grocery_store";
     ArrayList<NearLocationDetailsModelClass> nearLocationDetailsModelClassArrayList;
     EditText et_addr_or_pincode, et_radius;
     Button btn_curr_location, btn_search;
@@ -205,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
             nearByStoreUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" +
                     currentLatitude + "," + currentLongitude +
                     "&radius=" + nearByRadius +
-                    "&type=" + placeType +
+                    "&keyword=" + placeType +
+                    "maxprice=3" +
                     "&key=" + getResources().getString(R.string.google_map_key);
 
             new PlaceTask().execute(nearByStoreUrl);
@@ -381,6 +382,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
+            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
             gMap.clear();
 
             //after getting nearer stores show them on google map
