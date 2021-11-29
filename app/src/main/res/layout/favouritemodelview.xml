@@ -2,8 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginRight="5dp"
     android:orientation="vertical"
+    android:background="#4DD3D3D3"
     android:padding="5dp">
 
     <LinearLayout
@@ -54,7 +57,8 @@
                     android:id="@+id/mv_tv_dst_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Distance : "
+                    android:layout_marginRight="15dp"
+                    android:text="Latitude : "
                     android:textSize="20dp" />
 
                 <TextView
@@ -75,8 +79,8 @@
                     android:id="@+id/mv_website_lable"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="12dp"
-                    android:text="Website: "
+                    android:layout_marginRight="2dp"
+                    android:text="Longitude: "
                     android:textSize="20dp" />
 
                 <TextView
@@ -129,29 +133,35 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/mv_btn_get_direction"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="right"
-            android:layout_margin="5dp"
-            android:background="@drawable/ic_direction"></Button>
-
-
-        <Button
             android:id="@+id/mv_btn_call"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_gravity="right"
-            android:layout_margin="5dp"
-            android:background="@drawable/ic_call"></Button>
+            android:layout_marginLeft="270dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/ic_call"
+            android:visibility="invisible"></Button>
+
+        <Button
+            android:id="@+id/mv_btn_get_direction"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/ic_direction"></Button>
 
         <Button
             android:id="@+id/mv_btn_delete"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_gravity="right"
-            android:layout_margin="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/ic_delete"></Button>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@color/quantum_grey"></View>
 
 </LinearLayout>

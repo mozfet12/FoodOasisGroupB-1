@@ -1,12 +1,9 @@
 package com.groupB.foodoasis.Adapters;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,12 +65,8 @@ public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<Favour
         nearLocationDetailsModelClass.setIs_favourite(is_favourite);
 
         holder.mv_tv_name.setText(place_name);
-        holder.mv_dst.setText(lat + " mile(s)");
-        holder.mv_website.setText(icon);
-//        holder.mv_tv_icon.setText(icon);
-//        holder.mv_tv_place_id.setText(place_id);
-//        holder.mv_tv_latitude.setText(lat);
-//        holder.mv_tv_longitude.setText(lng);
+        holder.mv_dst.setText(lat);
+        holder.mv_website.setText(lng);
 
         holder.mv_btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,14 +77,6 @@ public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<Favour
                 db.deleteFavouriteListing(place_id);
                 Toast.makeText(context, "Removed from Favourite.", Toast.LENGTH_SHORT).show();
                 notifyDataSetChanged();
-            }
-        });
-
-        holder.mv_btn_get_direction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String[] latlng = getLiveLocation();
-                goToMap(latlng[0], latlng[1], lat, lng);
             }
         });
     }
@@ -121,25 +106,6 @@ public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<Favour
         return latlng;
     }
 
-    private void goToMap(String source_lat, String source_lng, String dst_lat, String dst_lng) {
-
-
-        try {
-            //if the MAPS is installed
-            Uri uri = Uri.parse("https://www.google.com/maps/dir/" + source_lat + "," + source_lng + "/" + dst_lat + "," + dst_lng);
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            intent.setPackage("com.google.android.apps.maps");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            //MAPS is not installed
-            Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps");
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        }
-    }
-
     @Override
     public int getItemCount() {
         return nearLocationDetailsModelClassArrayList.size();
@@ -156,10 +122,6 @@ public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<Favour
             mv_tv_name = (TextView) itemView.findViewById(R.id.mv_tv_name);
             mv_dst = (TextView) itemView.findViewById(R.id.mv_dst);
             mv_website = (TextView) itemView.findViewById(R.id.mv_website);
-//            mv_tv_icon = (TextView) itemView.findViewById(R.id.mv_tv_icon);
-//            mv_tv_place_id = (TextView) itemView.findViewById(R.id.mv_tv_place_id);
-//            mv_tv_latitude = (TextView) itemView.findViewById(R.id.mv_tv_latitude);
-//            mv_tv_longitude = (TextView) itemView.findViewById(R.id.mv_tv_longitude);
             mv_btn_delete = (Button) itemView.findViewById(R.id.mv_btn_delete);
             mv_btn_get_direction = (Button) itemView.findViewById(R.id.mv_btn_get_direction);
             mv_btn_call = (Button) itemView.findViewById(R.id.mv_btn_call);
