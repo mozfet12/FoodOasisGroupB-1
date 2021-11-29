@@ -434,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
                 db.insertStoreInTable(nearLocationDetailsModelClass);
 
             }
+            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
 //            set the adapter
 //            setNearLocationDeatilsAdapter();
         }

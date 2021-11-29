@@ -179,6 +179,7 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
                 //Converts JSON to string and prints it
 //                System.out.println(obj.toString());
                 Log.e("Data: ", obj.toString());
+//                Log.e("Data: ", obj.toString());
                 return obj.toString();
             }
 
