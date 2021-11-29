@@ -1,9 +1,12 @@
 package com.groupB.foodoasis.Adapters;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +82,31 @@ public class FavouriteLocationDetailsAdapter extends RecyclerView.Adapter<Favour
                 notifyDataSetChanged();
             }
         });
+
+        holder.mv_btn_get_direction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String[] latlng = getLiveLocation();
+                goToMap(latlng[0], latlng[1], lat, lng);
+            }
+        });
+    }
+
+    private void goToMap(String source_lat, String source_lng, String dst_lat, String dst_lng) {
+        try {
+            //if the MAPS is installed
+            Uri uri = Uri.parse("https://www.google.com/maps/dir/" + source_lat + "," + source_lng + "/" + dst_lat + "," + dst_lng);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.google.android.apps.maps");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            //MAPS is not installed
+            Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
     }
 
     private String[] getLiveLocation() {
