@@ -11,7 +11,6 @@ import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
 import java.util.ArrayList;
 
 public class StoreListingDBAdapter extends SQLiteOpenHelper {
-
     //constants used for db
     private static int DB_VERSION = 1;
     private static final String DB_NAME = "FoodOasis";
@@ -23,7 +22,6 @@ public class StoreListingDBAdapter extends SQLiteOpenHelper {
     private static final String COL_LATITUDE = "lat";
     private static final String COL_LONGITUDE = "lng";
     private static final String COL_IS_FAVOURITE = "is_favourite"; //0 = false, 1 =true
-
 
     public StoreListingDBAdapter(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
