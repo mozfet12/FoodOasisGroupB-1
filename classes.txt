@@ -2,8 +2,16 @@ PlaceTask: It is used to get the nearby location for the user
 
 ParserTask: It is used to store the data retrieved from google map
 
-NearLocationDetails: For the details of nearer location
+NearLocatedPlacesFromGoogleMap: It is used to JSON parse the data retrieved by the Google Map API
 
-Login: For allowing users to log in to the application
+NearLocationDetailsModelClass: It stores the details of the nearest location retrieved by the Google Map API
 
-VerifyWithUSDA: To verify the places with the USDA database
+NearLocationDetailsAdapter: To hold the data of nearest locations which can be made visible on the app in particular format
+
+FavouriteLocationDetailsAdapter: To hold the data of locations which have been added to the favourite list, and those can be made visible on the app in particular format
+
+USDADatabase: To retrive the data from the USDA database
+
+StoreListingDBAdapter: To perform various databse related task in SQLiteDatabase for the locations data
+
+

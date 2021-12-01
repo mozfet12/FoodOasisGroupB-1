@@ -17,14 +17,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -52,11 +50,9 @@ import com.groupB.foodoasis.Classes.NearLocatedPlacesFromGoogleMap;
 import com.groupB.foodoasis.Classes.NearLocationDetailsModelClass;
 import com.groupB.foodoasis.Classes.USDADatabase;
 import com.groupB.foodoasis.R;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -363,7 +359,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //            return data;
 //        }
-
         private String readAll(Reader rd) throws IOException {
             StringBuilder sb = new StringBuilder();
             int cp;
@@ -559,7 +554,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(List<HashMap<String, String>> hashMaps) {
 //            new USDADatabase().execute(currentLatitude + "", currentLongitude + "");
             gMap.clear();
-
 //            after getting nearer stores show them on google map
             for (int i = 0; i < hashMaps.size(); i++) {
                 HashMap<String, String> hashMap = hashMaps.get(i);
@@ -570,7 +564,6 @@ public class MainActivity extends AppCompatActivity {
                 String place_id = hashMap.get("place_id");
                 double lat = Double.parseDouble(hashMap.get("lat"));
                 double lng = Double.parseDouble(hashMap.get("lng"));
-
                 //join lat and lng
                 LatLng latLng = new LatLng(lat, lng);
                 MarkerOptions markerOptions = new MarkerOptions();
@@ -582,8 +575,6 @@ public class MainActivity extends AppCompatActivity {
 //                Log.e("place_id", place_id);
 //                Log.e("latitude: ", lat + "");
 //                Log.e("longitude: ", lng + "");
-
-
                 //add details in model class
                 NearLocationDetailsModelClass nearLocationDetailsModelClass = new NearLocationDetailsModelClass();
                 nearLocationDetailsModelClass.setName(name);
@@ -591,8 +582,6 @@ public class MainActivity extends AppCompatActivity {
                 nearLocationDetailsModelClass.setPlace_id(place_id);
                 nearLocationDetailsModelClass.setLatitude(lat);
                 nearLocationDetailsModelClass.setLongitude(lng);
-
-
 //                nearLocationDetailsModelClassArrayList.add(nearLocationDetailsModelClass);
 
                 //add data into the SQLite db
