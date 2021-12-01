@@ -68,8 +68,12 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
         nearLocationDetailsModelClass.setIs_favourite(is_favourite);
 
         holder.mv_tv_name.setText(place_name);
-        holder.mv_dst.setText(lat);
-        holder.mv_website.setText(lng);
+        holder.mv_dst.setText(lat + " mile(s)");
+        holder.mv_website.setText(icon);
+//        holder.mv_tv_icon.setText(icon);
+//        holder.mv_tv_place_id.setText(place_id);
+//        holder.mv_tv_latitude.setText(lat);
+//        holder.mv_tv_longitude.setText(lng);
 
         holder.mv_btn_add_fav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,23 +98,6 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
                 goToMap(latlng[0], latlng[1], lat, lng);
             }
         });
-    }
-
-    private void goToMap(String source_lat, String source_lng, String dst_lat, String dst_lng) {
-        try {
-            //if the MAPS is installed
-            Uri uri = Uri.parse("https://www.google.com/maps/dir/" + source_lat + "," + source_lng + "/" + dst_lat + "," + dst_lng);
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            intent.setPackage("com.google.android.apps.maps");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            //MAPS is not installed
-            Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps");
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        }
     }
 
     private String[] getLiveLocation() {
@@ -138,6 +125,25 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
         return latlng;
     }
 
+    private void goToMap(String source_lat, String source_lng, String dst_lat, String dst_lng) {
+
+
+        try {
+            //if the MAPS is installed
+            Uri uri = Uri.parse("https://www.google.com/maps/dir/" + source_lat + "," + source_lng + "/" + dst_lat + "," + dst_lng);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.google.android.apps.maps");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            //MAPS is not installed
+            Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps");
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
     @Override
     public int getItemCount() {
         return nearLocationDetailsModelClassArrayList.size();
@@ -154,6 +160,10 @@ public class NearLocationDetailsAdapter extends RecyclerView.Adapter<NearLocatio
             mv_tv_name = (TextView) itemView.findViewById(R.id.mv_tv_name);
             mv_dst = (TextView) itemView.findViewById(R.id.mv_dst);
             mv_website = (TextView) itemView.findViewById(R.id.mv_website);
+//            mv_tv_icon = (TextView) itemView.findViewById(R.id.mv_tv_icon);
+//            mv_tv_place_id = (TextView) itemView.findViewById(R.id.mv_tv_place_id);
+//            mv_tv_latitude = (TextView) itemView.findViewById(R.id.mv_tv_latitude);
+//            mv_tv_longitude = (TextView) itemView.findViewById(R.id.mv_tv_longitude);
             mv_btn_add_fav = (Button) itemView.findViewById(R.id.mv_btn_add_fav);
             mv_btn_get_direction = (Button) itemView.findViewById(R.id.mv_btn_get_direction);
             mv_btn_call = (Button) itemView.findViewById(R.id.mv_btn_call);
