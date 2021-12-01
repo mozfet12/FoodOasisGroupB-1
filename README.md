@@ -1,5 +1,3 @@
-# Food Oasis
-
 **Food Oasis** is a proposed Android app that aims to alleviate the effect of food deserts on the dietary health of people in low-income areas. It uses the Google Places API to search for grocery stores and farmers' markets in the vicinity of a given location. It will filter these results by cost. In addition, to make sure it does not return convenience stores and fast food restaurants,the app will verify location results with *United States Department of Agriculture(USDA)* databases of grocers and farmer's markets. Additional proposed features include being able to save favorite locations and notifications with links to weekly grocery ads for these locations.
 
 ## How Food Oasis works?
