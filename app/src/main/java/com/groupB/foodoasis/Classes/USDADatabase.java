@@ -4,9 +4,6 @@ package com.groupB.foodoasis.Classes;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.maps.GeoApiContext;
@@ -26,11 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 
 public class USDADatabase extends AsyncTask<String, Integer, String> {
@@ -59,7 +51,6 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
 
     @Override
     protected String doInBackground(String... strings) {
-
         //System.out.println(json.get("results"));
         //Miles that the User is willing to travel
         double milesTraveled = 20;
@@ -174,19 +165,18 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
                         JSONObject locData = new JSONObject();
                         locData.put("number", String.valueOf(i));
 
-                        locData.put("name", strResult.get(i).trim());
                         locData.put("lon", myLong);
                         locData.put("lat", myLat);
                         obj.put(locData);
-
                     } catch (JSONException e1) {
                         e1.printStackTrace();
                     }
 
+
                 }
                 //Converts JSON to string and prints it
 //                System.out.println(obj.toString());
-//                Log.e("Data: ", obj.toString());
+                Log.e("Data: ", obj.toString());
                 return obj.toString();
             }
 
@@ -198,7 +188,6 @@ public class USDADatabase extends AsyncTask<String, Integer, String> {
 
     @Override
     protected void onPostExecute(String s) {
-//        super.onPostExecute(s);
-//        Log.e("Data: ", s);
+        super.onPostExecute(s);
     }
 }
