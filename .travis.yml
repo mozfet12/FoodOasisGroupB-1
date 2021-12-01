@@ -10,8 +10,8 @@ android:
    - extra-android-m2repository
 env:
   global:
-    - TARGET_VERSION=30
-    - ANDROID_BUILD_TOOLS_VERSION=30.0.2
+    - TARGET_VERSION=29
+    - ANDROID_BUILD_TOOLS_VERSION=29.0.2
     - ANDROID_HOME=~/android-sdk
 
 before_install:
