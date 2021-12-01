@@ -13,6 +13,7 @@ import androidx.core.content.res.ResourcesCompat;
 import com.groupB.foodoasis.R;
 
 public class SplashScreen extends AppCompatActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

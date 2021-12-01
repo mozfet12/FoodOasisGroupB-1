@@ -4,9 +4,7 @@ API Key - Linked to a google account and allows client to interact with API
 
 SDK - Software development Kit
 
-JDK - Java Development Kit
-
-USDA - United States Department of Agriculture
+USDA - US Department of Agriculture
 
 Geocoding - Converting address to latitude and longitude coordinates
 

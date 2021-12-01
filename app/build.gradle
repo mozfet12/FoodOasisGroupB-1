@@ -48,5 +48,4 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.25'
     implementation group: 'org.json', name: 'json', version: '20210307'
     testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
 }
